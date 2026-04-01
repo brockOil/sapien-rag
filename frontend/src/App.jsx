@@ -144,8 +144,8 @@ export default function App() {
 
   // persist auth
   useEffect(() => {
-    if (auth) localStorage.setItem("oracle_auth", JSON.stringify(auth));
-    else localStorage.removeItem("oracle_auth");
+    if (auth) localStorage.setItem("sapien_auth", JSON.stringify(auth));
+    else localStorage.removeItem("sapien_auth");
   }, [auth]);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
@@ -286,7 +286,7 @@ export default function App() {
         <div className="history-header">
           <div className="logo">
             <span className="logo-mark">◈</span>
-            <span className="logo-text">ORACLE</span>
+            <span className="logo-text">Sapien</span>
           </div>
           <button className="new-chat-btn" onClick={newSession}>+ New chat</button>
         </div>
@@ -353,7 +353,7 @@ export default function App() {
           {messages.map((m, i) => <Message key={i} msg={m} />)}
           {streaming && messages[messages.length - 1]?.content === "" && (
             <div className="message message--ai">
-              <div className="message-role">ORACLE</div>
+              <div className="message-role">Sapien</div>
               <div className="message-content">
                 <span className="thinking"><span>▪</span><span>▪</span><span>▪</span></span>
               </div>
