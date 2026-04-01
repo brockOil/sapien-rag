@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import "./App.css";
 
-const API = "http://localhost:8001";
+const API = "http://localhost:8000";
 
 // ── API helpers ──────────────────────────────────────────────
 const apiFetch = async (path, opts = {}, token = null) => {
@@ -128,6 +128,9 @@ export default function App() {
     const raw = localStorage.getItem("sapien_auth");
     return raw ? JSON.parse(raw) : null;
   });
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("sapien_theme") || "dark";
+  });
 
   const [sessions, setSessions] = useState([]);
   const [activeSession, setActiveSession] = useState(null);
@@ -140,6 +143,7 @@ export default function App() {
 
   const fileRef = useRef();
   const bottomRef = useRef();
+  const inputRef = useRef();
   const token = auth?.token;
 
   // persist auth
@@ -148,7 +152,17 @@ export default function App() {
     else localStorage.removeItem("sapien_auth");
   }, [auth]);
 
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+  // persist theme
+  useEffect(() => {
+    localStorage.setItem("sapien_theme", theme);
+  }, [theme]);
+
+  // reset input height when cleared
+  useEffect(() => {
+    if (input === "" && inputRef.current) {
+      inputRef.current.style.height = "auto";
+    }
+  }, [input]);
 
   const load = useCallback(async () => {
     if (!token) return;
@@ -280,7 +294,7 @@ export default function App() {
   if (!auth) return <AuthScreen onAuth={d => setAuth(d)} />;
 
   return (
-    <div className="app">
+    <div className={`app theme-${theme}`}>
       {/* History sidebar */}
       <nav className="history-sidebar">
         <div className="history-header">
@@ -302,6 +316,12 @@ export default function App() {
         </div>
 
         <div className="history-footer">
+          <select value={theme} onChange={e => setTheme(e.target.value)} className="theme-select">
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+            <option value="dracula">Dracula</option>
+            <option value="hc">HC</option>
+          </select>
           <span className="username-chip">@{auth.username}</span>
           <button className="logout-btn" onClick={logout}>Sign out</button>
         </div>
@@ -365,9 +385,14 @@ export default function App() {
         <div className="chat-input-area">
           <div className="input-wrapper">
             <textarea className="chat-input"
+              ref={inputRef}
               placeholder="Ask a question about your documents…"
               value={input}
-              onChange={e => setInput(e.target.value)}
+              onChange={e => {
+                setInput(e.target.value);
+                e.target.style.height = "auto";
+                e.target.style.height = e.target.scrollHeight + "px";
+              }}
               onKeyDown={handleKeyDown}
               rows={1} />
             <button className={`send-btn ${streaming ? "send-btn--loading" : ""}`}
